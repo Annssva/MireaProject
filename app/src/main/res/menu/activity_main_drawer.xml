@@ -29,5 +29,25 @@
             android:id="@+id/webViewFragment"
             android:icon="@drawable/ic_menu_web"
             android:title="@string/menu_web" />
+        <item
+            android:id="@+id/playerFragment"
+            android:icon="@drawable/ic_music"
+            android:title="Player" />
+        <item
+            android:id="@+id/fragmentSensor"
+            android:icon="@drawable/ic_menu_sensors"
+            android:title="Sensors" />
+        <item
+            android:id="@+id/photoFragment"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="Photo" />
+        <item
+            android:id="@+id/audioFragment"
+            android:icon="@drawable/ic_menu_audio"
+            android:title="Audio" />
+        <item
+            android:id="@+id/settingsFragment"
+            android:icon="@android:drawable/ic_menu_preferences"
+            android:title="Settings" />
     </group>
 </menu>
