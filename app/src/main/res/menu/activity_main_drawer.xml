@@ -49,5 +49,9 @@
             android:id="@+id/settingsFragment"
             android:icon="@android:drawable/ic_menu_preferences"
             android:title="Settings" />
+        <item
+            android:id="@+id/infoFragment"
+            android:icon="@drawable/clock"
+            android:title="Time info" />
     </group>
 </menu>

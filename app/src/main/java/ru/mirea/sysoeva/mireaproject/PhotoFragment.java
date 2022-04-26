@@ -1,12 +1,16 @@
 package ru.mirea.sysoeva.mireaproject;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -18,7 +22,9 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,7 +34,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class PhotoFragment extends Fragment {
-
     private static final int REQUEST_CODE_PERMISSION_CAMERA = 100;
     final String TAG = MainActivity.class.getSimpleName();
     private ImageView imageView;
@@ -36,16 +41,28 @@ public class PhotoFragment extends Fragment {
     private boolean isWork = false;
     private Uri imageUri;
 
+    private Button saveButton;
+    private Button createButton;
+
+//    private String currentPhotoPath;
+//    ActivityResultLauncher<Intent> cameraRequest;
+//    ActivityResultLauncher<String[]> permissionsRequest;
+//    private final String[] PERMISSIONS = {
+//            Manifest.permission.CAMERA,
+//            Manifest.permission.WRITE_EXTERNAL_STORAGE
+//    };
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_photo, container, false);
-        imageView = view.findViewById(R.id.imageView);
 
-
-        view.findViewById(R.id.createBtn).setOnClickListener(this::onClickCameraBtn);
-        view.findViewById(R.id.saveBtn).setOnClickListener(this::onClickSaveImageBtn);
+        imageView = view.findViewById(R.id.imageView3);
+        saveButton = view.findViewById(R.id.saveBtn);
+        saveButton.setOnClickListener(this::onSaveBtnClick);
+        createButton = view.findViewById(R.id.createBtn);
+        createButton.setOnClickListener(this::onCreateBtnClick);
 
         int cameraPermissionStatus =
                 ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA);
@@ -61,11 +78,44 @@ public class PhotoFragment extends Fragment {
                             Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     REQUEST_CODE_PERMISSION_CAMERA);
         }
-
+//        cameraRequest = registerForActivityResult(
+//                new ActivityResultContracts.StartActivityForResult(),
+//                result -> {
+//                    if (result.getResultCode() == Activity.RESULT_OK) {
+//                        imageView.setImageURI(imageUri);
+//                        saveButton.setEnabled(true);
+//                    }
+//                });
+//
+//        permissionsRequest = registerForActivityResult(
+//                new ActivityResultContracts.RequestMultiplePermissions(), isGranted -> {
+//                    if (isGranted.containsValue(false)){
+//                        permissionsRequest.launch(PERMISSIONS);
+//                    } else {
+//                        isWork = true;
+//                    }
+//                });
+//        isWork = hasPermissions(getContext(), PERMISSIONS);
+//        if(!isWork){
+//            if (getActivity() != null) {
+//                permissionsRequest.launch(PERMISSIONS);
+//            }
+//        }
         return view;
     }
-
-    public void onClickCameraBtn(View view){
+    public static boolean hasPermissions(Context context, String... permissions){
+        if (context != null && permissions != null){
+            for (String permission: permissions){
+                if (ActivityCompat.checkSelfPermission(context, permission)
+                        == PackageManager.PERMISSION_DENIED){
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    public void onCreateBtnClick(View view){
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         if (cameraIntent.resolveActivity(getActivity().getPackageManager()) != null && isWork == true)
@@ -83,47 +133,13 @@ public class PhotoFragment extends Fragment {
             startActivityForResult(cameraIntent, CAMERA_REQUEST);
         }
     }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == CAMERA_REQUEST && resultCode == getActivity().RESULT_OK) {
-            imageView.setImageURI(imageUri);
-        }
-    }
-
-    private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "IMAGE_" + timeStamp + "_";
-        File storageDirectory =
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        return File.createTempFile(imageFileName, ".jpg", storageDirectory);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == REQUEST_CODE_PERMISSION_CAMERA) {
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // permission granted
-                isWork = true;
-            } else {
-                isWork = false;
-            }
-        }
-    }
-
-    public String onClickSaveImageBtn(View view){
+    private String onSaveBtnClick(View view){
         String folderToSave = Environment.getExternalStorageDirectory().toString();
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "IMAGE_" + timeStamp + "_";
         OutputStream outputStream = null;
         try {
-            File file = new File(folderToSave, imageFileName +".jpg");
+            File file = new File(folderToSave, imageFileName +".jpg"); // создать уникальное имя для файла основываясь на дате сохранения
             outputStream = new FileOutputStream(file);
 
             imageView.setDrawingCacheEnabled(true);
@@ -152,4 +168,39 @@ public class PhotoFragment extends Fragment {
         }
         return "";
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == CAMERA_REQUEST && resultCode == getActivity().RESULT_OK) {
+            imageView.setImageURI(imageUri);
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "IMAGE_" + timeStamp + "_";
+        File storageDirectory =
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        return File.createTempFile(imageFileName, ".jpg", storageDirectory);
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQUEST_CODE_PERMISSION_CAMERA) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // permission granted
+                isWork = true;
+            } else {
+                isWork = false;
+            }
+        }
+    }
+
 }
