@@ -44,13 +44,6 @@ public class PhotoFragment extends Fragment {
     private Button saveButton;
     private Button createButton;
 
-//    private String currentPhotoPath;
-//    ActivityResultLauncher<Intent> cameraRequest;
-//    ActivityResultLauncher<String[]> permissionsRequest;
-//    private final String[] PERMISSIONS = {
-//            Manifest.permission.CAMERA,
-//            Manifest.permission.WRITE_EXTERNAL_STORAGE
-//    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -78,29 +71,6 @@ public class PhotoFragment extends Fragment {
                             Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     REQUEST_CODE_PERMISSION_CAMERA);
         }
-//        cameraRequest = registerForActivityResult(
-//                new ActivityResultContracts.StartActivityForResult(),
-//                result -> {
-//                    if (result.getResultCode() == Activity.RESULT_OK) {
-//                        imageView.setImageURI(imageUri);
-//                        saveButton.setEnabled(true);
-//                    }
-//                });
-//
-//        permissionsRequest = registerForActivityResult(
-//                new ActivityResultContracts.RequestMultiplePermissions(), isGranted -> {
-//                    if (isGranted.containsValue(false)){
-//                        permissionsRequest.launch(PERMISSIONS);
-//                    } else {
-//                        isWork = true;
-//                    }
-//                });
-//        isWork = hasPermissions(getContext(), PERMISSIONS);
-//        if(!isWork){
-//            if (getActivity() != null) {
-//                permissionsRequest.launch(PERMISSIONS);
-//            }
-//        }
         return view;
     }
     public static boolean hasPermissions(Context context, String... permissions){
@@ -202,5 +172,4 @@ public class PhotoFragment extends Fragment {
             }
         }
     }
-
 }
