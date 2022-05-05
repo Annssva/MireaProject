@@ -53,5 +53,9 @@
             android:id="@+id/infoFragment"
             android:icon="@drawable/clock"
             android:title="Time info" />
+        <item
+            android:id="@+id/dataFragment"
+            android:icon="@drawable/book"
+            android:title="Disciplines" />
     </group>
 </menu>
